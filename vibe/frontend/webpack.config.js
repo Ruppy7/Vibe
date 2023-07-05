@@ -13,7 +13,7 @@ module.exports = {
                 test : /\.js$/,
                 exclude : /node_modules/,
                 use :{
-                    loader : "babel.loader",
+                    loader : "babel-loader",
                 },
             },
         ],
@@ -25,7 +25,7 @@ module.exports = {
         new webpack.DefinePlugin({
             "process.env" : {
                 //This has effect on react library size
-                NODE_ENV : JSON.stringify("production"),
+                NODE_ENV : JSON.stringify("development"),
             },
         }),
     ],
