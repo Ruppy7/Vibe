@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { useState } from 'react';
 import {
     Button,
     Typography,
@@ -11,49 +11,39 @@ import {
     FormControlLabel,
 }  from "@material-ui/core";
 
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 
-export default class CreateRoomPage extends Component{
-    defaultVotes = '2';
-    constructor(props) {
-        super(props);
-        this.state = {
-            guestCanPause : true,
-            votesToSkip : this.defaultVotes,
-        };
-        this.handleRoomButton = this.handleRoomButton.bind(this);
-        this.handleVoteChange = this.handleVoteChange.bind(this);
-        this.handleGuestControl = this.handleGuestControl.bind(this);
-    }
+const CreateRoomPage = () => {
+    const navigate = useNavigate();
+    const defaultVotes = '2';
+    const [guestCanPause, setGuestCanPause] = useState(true);
+    const [votesToSkip, setVotesToSkip] = useState(defaultVotes);
 
-    handleVoteChange(e) {
-        this.setState({
-            votesToSkip : e.target.value,
-        });
-    }
+    const handleVoteChange = (e) => {
+        setVotesToSkip(e.target.value);
+    };
 
-    handleGuestControl(e) {
-        this.setState({
-            guestCanPause : e.target.value === "true" ? true : false,
-        });
-    }
+    const handleGuestControl = (e) => {
+        setGuestCanPause(e.target.value === "true" ? true : false);
+    };
 
-    handleRoomButton() {
+    const handleRoomButton = () => {
         const requestOptions = {
             method  : 'POST',
             headers : {'Content-Type' : 'application/json'},
             body    : JSON.stringify({
-                votes_to_skip : this.state.votesToSkip,
-                guest_can_pause : this.state.guestCanPause
-            }),
+                votes_to_skip : votesToSkip,
+                guest_can_pause : guestCanPause,
+            })
         };
-        fetch('/api/create-room', requestOptions)
-        .then((response) => response.json())
-        .then((data) => console.log(data));
-    }
 
-    render() {
-        return (
+        fetch('/api/create-room', requestOptions)
+            .then((response) => response.json())
+            .then((data) => navigate('/room/' + data.code));
+    };
+    
+    
+    return (
         <Grid container spacing={1}>
             <Grid item xs={12} align="center">
                 <Typography component = 'h4' variant='h4'>
@@ -67,7 +57,7 @@ export default class CreateRoomPage extends Component{
                             Guest Control of Playback State
                         </div>
                     </FormHelperText>
-                    <RadioGroup row defaultValue="true" onChange={this.handleGuestControl}>
+                    <RadioGroup row defaultValue="true" onChange={handleGuestControl}>
                         <FormControlLabel 
                             value="true" 
                             control = {<Radio color="primary"/>}
@@ -88,12 +78,12 @@ export default class CreateRoomPage extends Component{
                     <TextField 
                         required = {true} 
                         type="number" 
-                        default={this.defaultVotes} 
+                        default={defaultVotes} 
                         inputProps={{
                             min:1,
                             style:{textAlign : "center"},
                         }}
-                        onChange={this.handleVoteChange}
+                        onChange={handleVoteChange}
                         >
                     </TextField>
                     <FormHelperText>
@@ -103,7 +93,7 @@ export default class CreateRoomPage extends Component{
                     </FormHelperText>
                 </FormControl>
                 <Grid item xs={12} align="center">
-                    <Button color='primary' variant='contained' onClick={this.handleRoomButton}>
+                    <Button color='primary' variant='contained' onClick={handleRoomButton}>
                         Create a Room
                     </Button>
                 </Grid>
@@ -114,6 +104,7 @@ export default class CreateRoomPage extends Component{
                 </Grid>
             </Grid>
         </Grid>
-        )
-    };
-}
+    )
+};
+
+export default CreateRoomPage;
