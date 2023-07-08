@@ -10,6 +10,7 @@ const Room = ({ leaveRoomCallBack }) => {
   const [guestCanPause, setGuestCanPause] = useState(false);
   const [isHost, setIsHost] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [spotifyAuthenticated, setSpotifyAuthenticated] = useState(false);
 
   useEffect(() => {
     getRoomDetails();
@@ -18,54 +19,73 @@ const Room = ({ leaveRoomCallBack }) => {
   const getRoomDetails = () => {
     fetch(`/api/get-room?code=${roomCode}`)
       .then((response) => {
-        if (!response.ok){
+        if (!response.ok) {
           leaveRoomCallBack();
-          navigate("/")
+          navigate("/");
         }
-      return response.json()})
+        return response.json();
+      })
       .then((data) => {
         setVotesToSkip(data.votes_to_skip);
         setGuestCanPause(data.guest_can_pause);
         setIsHost(data.is_host);
+        if (data.is_host) {
+          authenticateSpotify();
+        }
       });
   };
 
-  const leaveButtononClick = () => {
+  const authenticateSpotify = () => {
+    fetch("/spotify/is-authenticated")
+      .then((response) => response.json())
+      .then((data) => {
+        setSpotifyAuthenticated(data.status);
+        if (!data.status) {
+          fetch("/spotify/get-auth-url")
+            .then((response) => response.json())
+            .then((data) => {
+              window.location.href = data.url;
+            });
+        }
+      });
+  };
+
+  const leaveButtonOnClick = () => {
     const requestOptions = {
-      method : "POST",
-      headers : {'Content-Type' : 'application/json'},
-    }
-    fetch('/api/leave-room', requestOptions)
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    };
+    fetch("/api/leave-room", requestOptions)
       .then((_response) => {
         leaveRoomCallBack();
-        navigate("/")
-      })
-  }
+        navigate("/");
+      });
+  };
 
   const updateShowSettings = (value) => {
     setShowSettings(value);
-  }
+  };
 
   const renderSettings = () => {
     return (
       <Grid container spacing={1}>
         <Grid item xs={12} align="center">
-          <CreateRoomPage 
-            update={true} 
-            initVotesToSkip={votesToSkip} 
-            initGuestCanPause={guestCanPause} 
+          <CreateRoomPage
+            update={true}
+            initVotesToSkip={votesToSkip}
+            initGuestCanPause={guestCanPause}
             roomCode={roomCode}
             updateCallBack={getRoomDetails}
-            />
+          />
         </Grid>
         <Grid item xs={12} align="center">
-        <Button color='secondary' variant='contained' onClick={() => updateShowSettings(false)}>
-          Close
-        </Button>
+          <Button color="secondary" variant="contained" onClick={() => updateShowSettings(false)}>
+            Close
+          </Button>
         </Grid>
       </Grid>
     );
-  }
+  };
 
   const renderSettingsButton = () => {
     return (
@@ -77,10 +97,9 @@ const Room = ({ leaveRoomCallBack }) => {
     );
   };
 
-  if(showSettings) {
+  if (showSettings) {
     return renderSettings();
-  }
-  else{
+  } else {
     return (
       <Grid container spacing={1}>
         <Grid item xs={12} align="center">
@@ -103,14 +122,15 @@ const Room = ({ leaveRoomCallBack }) => {
             Host: {isHost.toString()}
           </Typography>
         </Grid>
-        { isHost ? renderSettingsButton() : null }
+        {isHost ? renderSettingsButton() : null}
         <Grid item xs={12} align="center">
-          <Button variant="contained" color="secondary" onClick={leaveButtononClick}>
+          <Button variant="contained" color="secondary" onClick={leaveButtonOnClick}>
             Leave Room
           </Button>
         </Grid>
       </Grid>
     );
-  };
+  }
 };
+
 export default Room;

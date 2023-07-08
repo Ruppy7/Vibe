@@ -1,2 +1,7 @@
 .env
 /frontend/node_modules/
+*.sqlite3
+*.pyc
+*.pyo
+__pycache__/
+*.egg-info/

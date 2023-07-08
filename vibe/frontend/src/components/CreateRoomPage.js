@@ -57,8 +57,8 @@ const CreateRoomPage = ({
             })
             .then((data) => {
                 setMsg(data.message);
+                updateCallBack();
             })
-            updateCallBack();
     };
 
     const renderCreateButtons = () => {
