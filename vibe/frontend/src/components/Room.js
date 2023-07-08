@@ -1,48 +1,116 @@
-import React from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Grid, Button, Typography } from "@material-ui/core";
+import CreateRoomPage from "./CreateRoomPage";
 
-// Wrapper component to retrieve route parameters using useParams
-const RoomWrapper = () => {
+const Room = ({ leaveRoomCallBack }) => {
+  const navigate = useNavigate();
   const { roomCode } = useParams();
+  const [votesToSkip, setVotesToSkip] = useState(2);
+  const [guestCanPause, setGuestCanPause] = useState(false);
+  const [isHost, setIsHost] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
-  return <Room roomCode={roomCode} />;
-};
+  useEffect(() => {
+    getRoomDetails();
+  }, []);
 
-class Room extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      votesToSkip: 2,
-      guestCanPause: false,
-      isHost: false,
-    };
-    this.getRoomDetails();
-  }
-
-  getRoomDetails() {
-    // Access the roomCode from props
-    const { roomCode } = this.props;
-    
-    fetch('/api/get-room' + '?code=' + roomCode).then((response) => response.json()).then((data) => {
-      this.setState({
-        votesToSkip : data.votes_to_skip,
-        guestCanPause : data.guest_can_pause,
-        isHost : data.is_host,
+  const getRoomDetails = () => {
+    fetch(`/api/get-room?code=${roomCode}`)
+      .then((response) => {
+        if (!response.ok){
+          leaveRoomCallBack();
+          navigate("/")
+        }
+      return response.json()})
+      .then((data) => {
+        setVotesToSkip(data.votes_to_skip);
+        setGuestCanPause(data.guest_can_pause);
+        setIsHost(data.is_host);
       });
-    });
+  };
 
+  const leaveButtononClick = () => {
+    const requestOptions = {
+      method : "POST",
+      headers : {'Content-Type' : 'application/json'},
+    }
+    fetch('/api/leave-room', requestOptions)
+      .then((_response) => {
+        leaveRoomCallBack();
+        navigate("/")
+      })
   }
 
-  render() {
+  const updateShowSettings = (value) => {
+    setShowSettings(value);
+  }
+
+  const renderSettings = () => {
     return (
-      <div>
-        <h3>{this.props.roomCode}</h3>
-        <p>Votes: {this.state.votesToSkip}</p>
-        <p>Guest Can Pause: {this.state.guestCanPause.toString()}</p>
-        <p>Host: {this.state.isHost.toString()}</p>
-      </div>
+      <Grid container spacing={1}>
+        <Grid item xs={12} align="center">
+          <CreateRoomPage 
+            update={true} 
+            initVotesToSkip={votesToSkip} 
+            initGuestCanPause={guestCanPause} 
+            roomCode={roomCode}
+            updateCallBack={getRoomDetails}
+            />
+        </Grid>
+        <Grid item xs={12} align="center">
+        <Button color='secondary' variant='contained' onClick={() => updateShowSettings(false)}>
+          Close
+        </Button>
+        </Grid>
+      </Grid>
     );
   }
-}
 
-export default RoomWrapper;
+  const renderSettingsButton = () => {
+    return (
+      <Grid item xs={12} align="center">
+        <Button variant="contained" color="primary" onClick={() => updateShowSettings(true)}>
+          Settings
+        </Button>
+      </Grid>
+    );
+  };
+
+  if(showSettings) {
+    return renderSettings();
+  }
+  else{
+    return (
+      <Grid container spacing={1}>
+        <Grid item xs={12} align="center">
+          <Typography variant="h4" component="h4">
+            Code: {roomCode}
+          </Typography>
+        </Grid>
+        <Grid item xs={12} align="center">
+          <Typography variant="h6" component="h6">
+            Votes Required: {votesToSkip}
+          </Typography>
+        </Grid>
+        <Grid item xs={12} align="center">
+          <Typography variant="h6" component="h6">
+            Guest Can Pause?: {guestCanPause.toString()}
+          </Typography>
+        </Grid>
+        <Grid item xs={12} align="center">
+          <Typography variant="h6" component="h6">
+            Host: {isHost.toString()}
+          </Typography>
+        </Grid>
+        { isHost ? renderSettingsButton() : null }
+        <Grid item xs={12} align="center">
+          <Button variant="contained" color="secondary" onClick={leaveButtononClick}>
+            Leave Room
+          </Button>
+        </Grid>
+      </Grid>
+    );
+  };
+};
+export default Room;
