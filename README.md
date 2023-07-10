@@ -2,6 +2,7 @@ Vibe
 
 Vibe is a web application that emulates a fraction of functionality provided by Spotify's web player. It is built using Django as the backend framework and React as the frontend library. The integration with the Spotify API allows users to access their Spotify accounts, view their currently playing song, and control playback.
 
+
 To set up the application, follow these steps:
 
 Install the necessary dependencies by running npm install for the frontend and pipenv install for the backend.
@@ -12,11 +13,14 @@ Used the Webpack CLI to bundle the frontend code, ensuring seamless integration 
 
 Test the application by running the appropriate commands for both the frontend and backend environments.
 
+
+Due to the lack of WebSocket support from the Spotify API, this application had to rely on polling. This means that requests were sent to the Spotify API every second to fetch the latest playback information.
+
 Key Features:
 
 Backend: Django is used to create a secure backend, complete with models, utils and APIViews from DRF(django-rest-framework). The user session key is stored as cookies for identifying users.
 
-Frontend: React is utilized for both functional and class-based components, providing a robust understanding of the technology. The frontend is bundled with Webpack for smooth integration with the backend.
+Frontend: Utilized React for both functional and class-based components, to fully understand what it provides a developer with. Various features of React were employed, such as callback functions, useEffect and useState hooks, and fetching APIs to enhance the application while giving me more experience in handling them.
 
 API Integration: The Spotify API is extensively used to fetch user data, and playback control.
 
