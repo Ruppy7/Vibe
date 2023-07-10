@@ -11,7 +11,6 @@ const Room = ({ leaveRoomCallBack }) => {
   const [isHost, setIsHost] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [spotifyAuthenticated, setSpotifyAuthenticated] = useState(false);
-  const [song, setSong] = useState({});
 
   useEffect(() => {
     getRoomDetails();
@@ -50,17 +49,6 @@ const Room = ({ leaveRoomCallBack }) => {
         }
       });
   };
-
-  const getCurrentSong = () => {
-    fetch('/spotify/current-song')
-      .then((response) => {
-        if (!response.ok){
-          return {}
-        } else {
-          return response.json();
-        }
-      }).then((data) => setSong(data));
-  }
 
   const leaveButtonOnClick = () => {
     const requestOptions = {
@@ -119,23 +107,7 @@ const Room = ({ leaveRoomCallBack }) => {
             Code: {roomCode}
           </Typography>
         </Grid>
-        { song }
-        {isHost ? renderSettingsButton() : null}
         <Grid item xs={12} align="center">
-          <Button variant="contained" color="secondary" onClick={leaveButtonOnClick}>
-            Leave Room
-          </Button>
-        </Grid>
-      </Grid>
-    );
-  }
-};
-
-export default Room;
-
-
-/*
-<Grid item xs={12} align="center">
           <Typography variant="h6" component="h6">
             Votes Required: {votesToSkip}
           </Typography>
@@ -150,4 +122,15 @@ export default Room;
             Host: {isHost.toString()}
           </Typography>
         </Grid>
-*/
+        {isHost ? renderSettingsButton() : null}
+        <Grid item xs={12} align="center">
+          <Button variant="contained" color="secondary" onClick={leaveButtonOnClick}>
+            Leave Room
+          </Button>
+        </Grid>
+      </Grid>
+    );
+  }
+};
+
+export default Room;
