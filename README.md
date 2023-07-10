@@ -1,6 +1,6 @@
 Vibe
 
-Vibe is a web application that emulates a fraction of functionality of Spotify's web player. It is built using Django as the backend framework and React as the frontend library. The integration with the Spotify API allows users to access their Spotify accounts, view their currently playing song, and control playback.
+Vibe is a web application that emulates a fraction of functionality provided by Spotify's web player. It is built using Django as the backend framework and React as the frontend library. The integration with the Spotify API allows users to access their Spotify accounts, view their currently playing song, and control playback.
 
 To set up the application, follow these steps:
 
